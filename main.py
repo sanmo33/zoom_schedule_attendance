@@ -1,15 +1,18 @@
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import QLabel, QLineEdit, QWidget, QApplication, QPushButton, QDateTimeEdit
-from PyQt5.QtGui import QIcon
-from PyQt5 import QtGui
+from PyQt5.QtGui import *
+#from PyQt5 import QtGui
 from PyQt5.QtCore import *
 
 from function import time_check, zoom_access
+from datetime import datetime as dt
 
 import sys
 import sip
 import subprocess
 import datetime
+import time
+
 
 #from .apps import MainWindow
 
@@ -21,6 +24,8 @@ class MainWindow(QWidget):
     def initUI(self):
         self.resize(500, 400)
         self.move(400, 300)
+
+        #layout=QVBoxLayout()
         
         #title
         self.setWindowTitle('Zoom_Auto_Attendance')
@@ -47,11 +52,7 @@ class MainWindow(QWidget):
         self.datetimelabel = QLabel(self)
         self.datetimelabel.setText('Zoom start time')
         self.datetime_setting = QDateTimeEdit(QDateTime.currentDateTime(), self)
-        y,m,d,h,mi = time_check()
-        #dt = QDateTime(y,m,d,h,mi)
-        #self.datetime_setting.setDateTime(QDateTime.currentDateTime(), self)
         self.datetimelabel.setWordWrap(True)
-        #self.usr_setting_time = 
         self.datetime_setting.move(100,70)
         self.datetimelabel.move(20, 70)
 
@@ -63,17 +64,12 @@ class MainWindow(QWidget):
 
     #Zoomにアクセスするする関数
     def ZoomclickMethod(self):
-        pass
-        #print(self.QDateTime)
-        #zoom_access(self.zoom_id.text(), self.zoom_pass.text())
-
-
-        """id = self.zoom_id.text().replace(' ', '')
-        password = self.zoom_pass.text().replace(' ', '')
-        url = 'zoommtg:"//zoom.us/join?confno=' + id + '&pwd=' + password + '"'
-        cmd = "open %s" %url
-        subprocess.check_output(cmd, shell=True)"""
-
+        #datetimeで扱いやすいように変換
+        tmp = self.datetime_setting.dateTime().toString('yyyy-MM-dd hh:mm:ss')
+        tdatetime = dt.strptime(tmp, '%Y-%m-%d %H:%M:%S')
+        print(tdatetime)
+        print(tdatetime - datetime.timedelta(minutes=1))
+        
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
