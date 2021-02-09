@@ -1,9 +1,6 @@
 import datetime
 import subprocess
-
-def time_check():
-    dt_now = datetime.datetime.now()
-    return dt_now.year, dt_now.month, dt_now.day, dt_now.hour, dt_now.minute
+from datetime import datetime, timedelta
 
 def zoom_access(id, password):
     id = id.replace(' ', '')
@@ -12,3 +9,9 @@ def zoom_access(id, password):
     cmd = "open %s" %url
     subprocess.check_output(cmd, shell=True)
 
+#開始時間の一分前までの秒数を求める
+def convert_second(timedlt):
+    now = datetime.now()
+    one_minute_before = timedlt - timedelta(minutes=1) - timedelta(seconds=40)
+    wait_time = one_minute_before - now
+    return wait_time.total_seconds()

@@ -1,10 +1,9 @@
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import QLabel, QLineEdit, QWidget, QApplication, QPushButton, QDateTimeEdit
 from PyQt5.QtGui import *
-#from PyQt5 import QtGui
 from PyQt5.QtCore import *
 
-from function import time_check, zoom_access
+from function import zoom_access, convert_second
 from datetime import datetime as dt
 
 import sys
@@ -66,9 +65,18 @@ class MainWindow(QWidget):
     def ZoomclickMethod(self):
         #datetimeで扱いやすいように変換
         tmp = self.datetime_setting.dateTime().toString('yyyy-MM-dd hh:mm:ss')
-        tdatetime = dt.strptime(tmp, '%Y-%m-%d %H:%M:%S')
-        print(tdatetime)
-        print(tdatetime - datetime.timedelta(minutes=1))
+        zoom_start_datetime = dt.strptime(tmp, '%Y-%m-%d %H:%M:%S')
+        wait_time  =int(convert_second(zoom_start_datetime))
+        print(wait_time)
+
+        if wait_time > 0:
+            loop = QEventLoop()
+            QTimer.singleShot(wait_time*1000, loop.quit)
+            loop.exec_()
+            #zoom_access(self.zoom_id.text(), self.zoom_pass.text())
+        else:
+            print('error')
+
         
 
 if __name__ == '__main__':
