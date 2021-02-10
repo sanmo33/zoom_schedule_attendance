@@ -64,12 +64,22 @@ class MainWindow(QWidget):
         self.pybutton.resize(self.pybutton.sizeHint())
         self.pybutton.move(150,110)
 
+        #開始までの残り時間を表示する設定
         self.lefttime = QLabel(self)
         self.lefttime.move(20, 140)
-        self.lefttime.resize(200, 20)
-        self.lefttime.setAlignment(QtCore.Qt.AlignLeft)
+        self.lefttime.resize(100, 20)
+        self.lefttime.setAlignment(QtCore.Qt.AlignCenter)
         self.lefttime.setFont(QtGui.QFont("Arial", 14, QtGui.QFont.Black))
         self.lefttime.setText('Wait:')
+    
+    def showTime(self):
+        self.wait_time -= 1
+        self.lefttime.setText('Wait:'+str(self.wait_time)+'s')
+
+        if self.wait_time < 0:
+            zoom_access(self.zoom_id.text(), self.zoom_pass.text())
+            exit()
+
 
 
     #Zoomにアクセスするする関数
@@ -77,19 +87,18 @@ class MainWindow(QWidget):
         #datetimeで扱いやすいように変換
         tmp = self.datetime_setting.dateTime().toString('yyyy-MM-dd hh:mm:ss')
         zoom_start_datetime = dt.strptime(tmp, '%Y-%m-%d %H:%M:%S')
-        wait_time  =int(convert_second(zoom_start_datetime))
+        self.wait_time  =int(convert_second(zoom_start_datetime))
 
         #どれくらい待つのか変換
-        h,m,s = convert_second_to_hms(wait_time)
+        h,m,s = convert_second_to_hms(self.wait_time)
         str_hms = h+'H'+m+'M'+s+'S'
 
         
-        if wait_time > 0:
-            self.lefttime.setText('Wait:'+str_hms)
-            loop = QEventLoop()
-            QTimer.singleShot(wait_time*1000, loop.quit)
-            loop.exec_()
-            zoom_access(self.zoom_id.text(), self.zoom_pass.text())
+        if self.wait_time > 0:
+            #QTimerはstartの引数ミリセックごとに、timeout.connectの引数を行う
+            self.timer = QTimer()
+            self.timer.timeout.connect(self.showTime)
+            self.timer.start(1000)
         else:
             print('error')
 
