@@ -97,6 +97,7 @@ class MainWindow(QWidget):
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
+    app.setWindowIcon(QIcon('/Users/yu/Codes/zoom_login_gui/robot_arm.png'))
     main_window = MainWindow()
     main_window.show()
     sys.exit(app.exec_())
