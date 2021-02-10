@@ -4,7 +4,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5 import QtGui
 
-from function import zoom_access, convert_second
+from function import zoom_access, convert_second, convert_second_to_hms
 from datetime import datetime as dt
 
 import sys
@@ -17,19 +17,16 @@ class MainWindow(QWidget):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
         self.initUI()
-        #layout = QGridLayout()
-        #self.setLayout(layout)
 
     def initUI(self):
-        self.resize(430, 150)
+        self.resize(430, 190)
         self.move(400, 300)
         
         #title
         self.setWindowTitle('Zoom_Auto_Attendance')
         
-
         #zoom idの設定
-        self.zoomIdLabel  =QLabel(self)
+        self.zoomIdLabel = QLabel(self)
         self.zoomIdLabel.setText('Zoom_id:')
         self.zoomIdLabel.setAlignment(QtCore.Qt.AlignCenter)
         self.zoomIdLabel.setFont(QtGui.QFont("Arial", 14, QtGui.QFont.Black))
@@ -50,7 +47,6 @@ class MainWindow(QWidget):
         self.zoom_pass.move(150,50)
         self.zoomPassLabel.move(20,50)
 
-     
         #時刻の設定
         self.datetimelabel = QLabel(self)
         self.datetimelabel.setText('Start time:')
@@ -63,10 +59,18 @@ class MainWindow(QWidget):
         self.datetimelabel.move(20,80)
 
         #buttonの設定
-        pybutton = QPushButton('Send', self)
-        pybutton.clicked.connect(self.ZoomclickMethod)
-        pybutton.resize(pybutton.sizeHint())
-        pybutton.move(150,110)
+        self.pybutton = QPushButton('Send', self)
+        self.pybutton.clicked.connect(self.ZoomclickMethod)
+        self.pybutton.resize(self.pybutton.sizeHint())
+        self.pybutton.move(150,110)
+
+        self.lefttime = QLabel(self)
+        self.lefttime.move(20, 140)
+        self.lefttime.resize(200, 20)
+        self.lefttime.setAlignment(QtCore.Qt.AlignLeft)
+        self.lefttime.setFont(QtGui.QFont("Arial", 14, QtGui.QFont.Black))
+        self.lefttime.setText('Wait:')
+
 
     #Zoomにアクセスするする関数
     def ZoomclickMethod(self):
@@ -75,8 +79,13 @@ class MainWindow(QWidget):
         zoom_start_datetime = dt.strptime(tmp, '%Y-%m-%d %H:%M:%S')
         wait_time  =int(convert_second(zoom_start_datetime))
 
+        #どれくらい待つのか変換
+        h,m,s = convert_second_to_hms(wait_time)
+        str_hms = h+'H'+m+'M'+s+'S'
+
         
         if wait_time > 0:
+            self.lefttime.setText('Wait:'+str_hms)
             loop = QEventLoop()
             QTimer.singleShot(wait_time*1000, loop.quit)
             loop.exec_()

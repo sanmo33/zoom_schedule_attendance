@@ -16,3 +16,12 @@ def convert_second(timedlt):
     one_minute_before = timedlt - timedelta(minutes=1) - timedelta(seconds=40)
     wait_time = one_minute_before - now
     return wait_time.total_seconds()
+
+#秒数から何時間何分何秒を求める関数(strで返す)
+def convert_second_to_hms(sec):
+    h,m,s = 0,0,0
+    h = sec //3600
+    tmp = sec % 3600
+    m = tmp // 60
+    s = tmp - 60*m
+    return [str(h), str(m), str(s)]
