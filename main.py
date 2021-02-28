@@ -1,5 +1,5 @@
 from PyQt5 import QtCore, QtWidgets
-from PyQt5.QtWidgets import QLabel, QLineEdit, QWidget, QApplication, QPushButton, QDateTimeEdit
+from PyQt5.QtWidgets import QLabel, QLineEdit, QWidget, QApplication, QPushButton, QDateTimeEdit, QMessageBox
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 from PyQt5 import QtGui
@@ -72,6 +72,7 @@ class MainWindow(QWidget):
         self.lefttime.setFont(QtGui.QFont("Arial", 14, QtGui.QFont.Black))
         self.lefttime.setText('Wait:')
     
+    #残り時間を表示させる関数、wait_timeが0になるとzoomにアクセスする
     def showTime(self):
         self.wait_time -= 1
         self.lefttime.setText('Wait:'+str(self.wait_time)+'s')
@@ -79,28 +80,38 @@ class MainWindow(QWidget):
         if self.wait_time < 0:
             zoom_access(self.zoom_id.text(), self.zoom_pass.text())
             exit()
-
+    
+    #既にmeetingが行われている場合、アクセスするか否かの確認。
+    def popup_button(self, i):
+        if i.text() == 'OK':
+            zoom_access(self.zoom_id.text(), self.zoom_pass.text())
+            exit()
+        else:
+            pass
 
 
     #Zoomにアクセスするする関数
     def ZoomclickMethod(self):
-        #datetimeで扱いやすいように変換
+        #datetimeで扱いやすいように変換し、wait_timeに待ち時間を入れる
         tmp = self.datetime_setting.dateTime().toString('yyyy-MM-dd hh:mm:ss')
         zoom_start_datetime = dt.strptime(tmp, '%Y-%m-%d %H:%M:%S')
         self.wait_time  =int(convert_second(zoom_start_datetime))
-
-        #どれくらい待つのか変換
-        h,m,s = convert_second_to_hms(self.wait_time)
-        str_hms = h+'H'+m+'M'+s+'S'
-
         
+        #もし待ち時間が0秒以上なら
         if self.wait_time > 0:
             #QTimerはstartの引数ミリセックごとに、timeout.connectの引数を行う
             self.timer = QTimer()
             self.timer.timeout.connect(self.showTime)
             self.timer.start(1000)
         else:
-            print('error')
+            self.msg = QMessageBox()
+            self.msg.setFont(QtGui.QFont("Arial", 14, QtGui.QFont.Black))
+            self.msg.setWindowTitle("The Meeting is already held")
+            self.msg.setText("既にMeetingは始まっています")
+            self.msg.setInformativeText("Meetingにアクセスしますか？")
+            self.msg.setStandardButtons(QMessageBox.Ok | QMessageBox.No)
+            self.msg.buttonClicked.connect(self.popup_button)
+            x = self.msg.exec_()
 
         
 
